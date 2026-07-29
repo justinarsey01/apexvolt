@@ -1,0 +1,29 @@
+/* Custom styles for CryptoForge */
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.tab-button {
+    transition: all 0.2s;
+}
+
+.tab-button.active {
+    border-bottom: 3px solid #facc15;
+    color: #facc15;
+}
+
+.glass {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+}
+
+/* Tailwind enhancements via script already handled */
+.font-mono {
+    font-family: ui-monospace, monospace;
+}
+
+@layer base {
+    html, body {
+        min-width: 200px;
+    }
+}

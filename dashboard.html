@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Dashboard - ApexVolt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            padding-bottom: 0;
+        }
+        .logo-gradient {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+        }
+        .nav-link {
+            transition: all 0.2s;
+        }
+        .nav-link:hover {
+            background-color: #1f2937;
+        }
+        .nav-link-active {
+            background-color: #1f2937;
+            border-left: 4px solid #3b82f6;
+        }
+        /* Auto Scrolling Ticker */
+        .ticker-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .ticker-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 3rem;
+            animation: ticker-scroll 35s linear infinite;
+        }
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Bottom Navigation (PWA style) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: #09090b;
+            border-top: 1px solid #27272a;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            flex: 1;
+            height: 100%;
+            color: #71717a;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+        .bottom-nav-item.active {
+            color: #3b82f6;
+        }
+        .bottom-nav-item.active i {
+            transform: scale(1.1);
+        }
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+        }
+
+        /* Hide bottom nav on large screens, show sidebar */
+        @media (min-width: 1024px) {
+            .bottom-nav {
+                display: none !important;
+            }
+            body {
+                padding-bottom: 0 !important;
+            }
+        }
+
+        /* Extra bottom padding on mobile so content is not hidden */
+        @media (max-width: 1023px) {
+            body {
+                padding-bottom: 80px;
+            }
+            .desktop-nav { display: none !important; }
+            .mobile-menu-btn { display: flex !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <!-- Auto Scrolling Ticker -->
+    <div class="bg-zinc-900 border-b border-gray-800 py-3 text-sm fixed w-full z-[60]">
+        <div class="ticker-container max-w-7xl mx-auto px-6">
+            <div class="ticker-content" id="ticker-content">
+                <!-- Duplicated by JS for seamless loop -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-black border-b border-gray-800 fixed w-full z-50 mt-11">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-inner">A</div>
+                    <span class="font-bold text-3xl tracking-tight">ApexVolt</span>
+                </div>
+                <div class="desktop-nav flex items-center gap-6">
+                    <div class="flex items-center gap-2 bg-zinc-900 rounded-2xl px-4 py-2 text-sm">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <span id="last-updated">Live</span>
+                    </div>
+                    <button onclick="logout()"
+                            class="px-6 py-2 text-sm border border-red-500/50 hover:bg-red-500/10 rounded-2xl flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+                <button id="mobile-menu-btn"
+                        class="mobile-menu-btn hidden items-center justify-center w-10 h-10 text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden bg-zinc-900 border-t border-gray-800">
+            <div class="px-6 py-6 space-y-4">
+                <div class="flex items-center gap-2 bg-zinc-800 rounded-2xl px-4 py-3 text-sm">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span id="last-updated-mobile">Live</span>
+                </div>
+                <button onclick="logout(); toggleMobileMenu()"
+                        class="w-full py-4 border border-red-500/50 hover:bg-red-500/10 rounded-2xl flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-28">
+        <!-- Sidebar (Desktop) -->
+        <div class="w-64 bg-zinc-950 border-r border-gray-800 h-screen fixed hidden lg:block">
+            <div class="px-6 py-8">
+                <div class="space-y-1">
+                    <a href="#" onclick="switchPage(0)" class="nav-link nav-link-active flex items-center gap-3 px-4 py-3 rounded-2xl text-white" data-page="0">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" onclick="switchPage(1)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="1">
+                        <i class="fas fa-chart-bar w-5"></i>
+                        <span class="font-medium">Investments</span>
+                    </a>
+                    <a href="#" onclick="switchPage(2)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="2">
+                        <i class="fas fa-arrow-down w-5"></i>
+                        <span class="font-medium">Deposits</span>
+                    </a>
+                    <a href="#" onclick="switchPage(3)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="3">
+                        <i class="fas fa-arrow-up w-5"></i>
+                        <span class="font-medium">Withdrawals</span>
+                    </a>
+                    <a href="#" onclick="switchPage(4)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="4">
+                        <i class="fas fa-exchange-alt w-5"></i>
+                        <span class="font-medium">Transfer</span>
+                    </a>
+                    <a href="#" onclick="switchPage(5)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="5">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="font-medium">Referrals</span>
+                    </a>
+                    <a href="#" onclick="switchPage(6)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="6">
+                        <i class="fas fa-cog w-5"></i>
+                        <span class="font-medium">Settings</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 lg:ml-64">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+                <div class="flex justify-between items-end mb-10">
+                    <div>
+                        <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Welcome back, Alex</h1>
+                        <p class="text-gray-400 mt-1 text-lg">Portfolio Overview • Live Prices</p>
+                    </div>
+                    <button onclick="initiateWithdrawal()" class="px-8 py-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-3xl font-semibold flex items-center gap-3">
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                        <span>Withdraw Funds</span>
+                    </button>
+                </div>
+
+                <div class="bg-zinc-900 rounded-3xl p-8 mb-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-semibold">Your Portfolio</h2>
+                        <div class="text-right">
+                            <div id="total-portfolio" class="text-4xl font-mono font-bold">$42,873</div>
+                            <div id="portfolio-change" class="text-emerald-400 text-sm flex items-center gap-1 justify-end">
+                                <i class="fas fa-arrow-trend-up"></i> +2.84% today
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                        <div class="lg:col-span-3">
+                            <canvas id="portfolioChart" height="320"></canvas>
+                        </div>
+                        <div class="lg:col-span-2 space-y-6" id="portfolio-list"></div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 rounded-3xl overflow-hidden">
+                    <div class="flex border-b border-gray-700 overflow-x-auto">
+                        <button onclick="switchTab(0)" id="tab-btn-0" class="tab-button active flex-1 py-5 text-center font-medium border-b-2 border-blue-500 text-blue-400">Active Investments</button>
+                        <button onclick="switchTab(1)" id="tab-btn-1" class="tab-button flex-1 py-5 text-center font-medium text-gray-400">Pending Withdrawals</button>
+                        <button onclick="switchTab(2)" id="tab-btn-2" class="tab-button flex-1 py-5 text-center font-medium text-gray-400">Transaction History</button>
+                    </div>
+                    <div class="p-8" id="tab-content">
+                        <div id="tab-0" class="tab-pane">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-zinc-950 rounded-2xl p-6 border border-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center text-2xl font-bold text-black">₿</div>
+                                            <div>
+                                                <div class="font-semibold">Bitcoin Stake</div>
+                                                <div class="text-emerald-400 text-sm">18.4% APY</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div id="btc-stake-amount" class="font-mono text-3xl font-bold">0.45 BTC</div>
+                                            <div id="btc-stake-value" class="text-gray-400">$28,500</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-zinc-950 rounded-2xl p-6 border border-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-11 h-11 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl font-bold">Ξ</div>
+                                            <div>
+                                                <div class="font-semibold">Ethereum Yield</div>
+                                                <div class="text-emerald-400 text-sm">12.7% APY</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div id="eth-stake-amount" class="font-mono text-3xl font-bold">3.2 ETH</div>
+                                            <div id="eth-stake-value" class="text-gray-400">$8,200</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab-1" class="tab-pane hidden text-center py-12 text-gray-400">
+                            <i class="fas fa-clock text-6xl mb-4 opacity-30"></i>
+                            <p>No pending withdrawals</p>
+                        </div>
+                        <div id="tab-2" class="tab-pane hidden">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-gray-700 text-gray-400">
+                                        <th class="pb-4 text-left">Date</th>
+                                        <th class="pb-4 text-left">Type</th>
+                                        <th class="pb-4 text-left">Asset</th>
+                                        <th class="pb-4 text-left">Amount</th>
+                                        <th class="pb-4 text-right">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (Mobile / PWA) -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <a href="#" class="bottom-nav-item active" data-page="0" onclick="switchPage(0); return false;">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="1" onclick="switchPage(1); return false;">
+            <i class="fas fa-chart-bar"></i>
+            <span>Invest</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="2" onclick="switchPage(2); return false;">
+            <i class="fas fa-arrow-down"></i>
+            <span>Deposit</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="3" onclick="switchPage(3); return false;">
+            <i class="fas fa-arrow-up"></i>
+            <span>Withdraw</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-page="6" onclick="switchPage(6); return false;">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </nav>
+
+    <!-- Withdrawal Modal -->
+    <div id="withdrawal-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 rounded-3xl max-w-md mx-4 p-8">
+            <div class="flex justify-between mb-4">
+                <h3 class="text-2xl font-semibold">Withdraw Funds</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl">×</button>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-gray-400 block mb-2">Amount (USD)</label>
+                    <input id="withdraw-amount" type="text" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-5 px-6 text-3xl font-mono" placeholder="50.00">
+                </div>
+                <div>
+                    <label class="text-gray-400 block mb-2">Network</label>
+                    <select id="withdraw-network" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-5 px-6">
+                        <option>BTC</option>
+                        <option>ETH</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-gray-400 block mb-2">Wallet Address</label>
+                    <input id="wallet-address" type="text" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-5 px-6 font-mono" placeholder="Enter address">
+                </div>
+            </div>
+            <div class="mt-8 flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-4 border border-gray-600 rounded-2xl">Cancel</button>
+                <button onclick="submitWithdrawal()" class="flex-1 py-4 bg-blue-600 rounded-2xl font-semibold">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let portfolioHoldings = [
+            { id: "bitcoin", symbol: "BTC", name: "Bitcoin", amount: 0.545, color: "#facc15" },
+            { id: "ethereum", symbol: "ETH", name: "Ethereum", amount: 36.2, color: "#60a5fa" },
+            { id: "tether", symbol: "USDT", name: "Tether", amount: 3200, color: "#86efac" }
+        ];
+        let currentPrices = {};
+
+        async function fetchCryptoPrices() {
+            try {
+                const ids = "bitcoin,ethereum,tether,polkadot,chainlink,litecoin,bitcoin-cash,uniswap,pi-network,cat-in-the-wiki";
+                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+                currentPrices = await res.json();
+            } catch (e) {
+                currentPrices = {
+                    bitcoin: { usd: 107229, usd_24h_change: 0.69 },
+                    ethereum: { usd: 2560, usd_24h_change: 1.2 },
+                    tether: { usd: 1, usd_24h_change: 0 },
+                    "pi-network": { usd: 0.85, usd_24h_change: -1.2 },
+                    "cat-in-the-wiki": { usd: 0.0045, usd_24h_change: 12.4 }
+                };
+            }
+            renderAutoTicker();
+            updatePortfolioValues();
+            updateLastUpdated();
+        }
+
+        function renderAutoTicker() {
+            const container = document.getElementById("ticker-content");
+            let html = '';
+            const coins = [
+                {id:"bitcoin", symbol:"BTC"},
+                {id:"ethereum", symbol:"ETH"},
+                {id:"tether", symbol:"USDT"},
+                {id:"polkadot", symbol:"DOT"},
+                {id:"chainlink", symbol:"LINK"},
+                {id:"litecoin", symbol:"LTC"},
+                {id:"bitcoin-cash", symbol:"BCH"},
+                {id:"uniswap", symbol:"UNI"},
+                {id:"pi-network", symbol:"PI"},
+                {id:"cat-in-the-wiki", symbol:"WIKI CAT"}
+            ];
+            // Create two copies for seamless scrolling
+            for (let i = 0; i < 2; i++) {
+                coins.forEach(coin => {
+                    const p = currentPrices[coin.id] || {usd: 0, usd_24h_change: 0};
+                    const changeClass = (p.usd_24h_change || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+                    html += `
+                        <span class="flex items-center gap-3">
+                            <span class="font-medium">${coin.symbol}</span>
+                            <span class="font-mono">$${p.usd ? Number(p.usd).toLocaleString() : '—'}</span>
+                            <span class="text-xs ${changeClass}">${(p.usd_24h_change || 0).toFixed(2)}%</span>
+                        </span>
+                    `;
+                });
+            }
+            container.innerHTML = html;
+        }
+
+        function updatePortfolioValues() {
+            let total = 0;
+            let html = '';
+            portfolioHoldings.forEach(h => {
+                const price = currentPrices[h.id]?.usd || 10000;
+                const value = h.amount * price;
+                total += value;
+                html += `
+                    <div class="flex justify-between py-4 border-b border-gray-700 last:border-0">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-3xl bg-zinc-800">${h.symbol === 'BTC' ? '₿' : h.symbol === 'ETH' ? 'Ξ' : 'T'}</div>
+                            <div>
+                                <div class="font-semibold">${h.name}</div>
+                                <div class="text-sm text-gray-400">${h.amount} ${h.symbol}</div>
+                            </div>
+                        </div>
+                        <div class="text-right font-mono font-bold">$${Math.round(value).toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            document.getElementById("portfolio-list").innerHTML = html;
+            document.getElementById("total-portfolio").textContent = `$${Math.round(total).toLocaleString()}`;
+        }
+
+        function updateLastUpdated() {
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById("last-updated").innerHTML = `Live <span class="text-xs text-gray-500">• ${time}</span>`;
+            if (document.getElementById("last-updated-mobile")) {
+                document.getElementById("last-updated-mobile").innerHTML = `Live <span class="text-xs text-gray-500">• ${time}</span>`;
+            }
+        }
+
+        function createChart() {
+            new Chart(document.getElementById("portfolioChart"), {
+                type: "doughnut",
+                data: {
+                    labels: portfolioHoldings.map(h => h.symbol),
+                    datasets: [{
+                        data: portfolioHoldings.map(h => h.amount * (currentPrices[h.id]?.usd || 10000)),
+                        backgroundColor: portfolioHoldings.map(h => h.color),
+                        borderWidth: 6,
+                        borderColor: "#18181b"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: "70%",
+                    plugins: { legend: { position: "bottom", labels: { color: "#aaa", padding: 20 } } }
+                }
+            });
+        }
+
+        function populateHistory() {
+            document.getElementById("history-body").innerHTML = `
+                <tr class="border-b border-gray-700"><td class="py-4">Jul 08</td><td>Stake</td><td>BTC</td><td>0.12</td><td class="text-right">$12,840</td></tr>
+                <tr class="border-b border-gray-700"><td class="py-4">Jul 05</td><td>Deposit</td><td>ETH</td><td>1.5</td><td class="text-right">$3,850</td></tr>
+            `;
+        }
+
+        function switchTab(n) {
+            document.querySelectorAll('.tab-button').forEach((btn,i) => {
+                btn.classList.toggle('active', i===n);
+                btn.classList.toggle('border-b-2', i===n);
+                btn.classList.toggle('border-blue-500', i===n);
+                btn.classList.toggle('text-blue-400', i===n);
+                btn.classList.toggle('text-gray-400', i!==n);
+            });
+            document.querySelectorAll('#tab-content > div').forEach((div,i) => div.classList.toggle('hidden', i!==n));
+        }
+
+        function initiateWithdrawal() { document.getElementById('withdrawal-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('withdrawal-modal').classList.add('hidden'); }
+        function submitWithdrawal() {
+            const amt = document.getElementById("withdraw-amount").value;
+            if (amt && parseFloat(amt) >= 50) alert(`Withdrawal request for $${amt} submitted!`);
+            closeModal();
+        }
+        function logout() { if(confirm("Logout?")) location.reload(); }
+
+        // Unified page switcher for both sidebar + bottom nav
+        function switchPage(p) {
+            // Update sidebar active state
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('nav-link-active', 'text-white');
+                link.classList.add('text-gray-400');
+            });
+            const sidebarLink = document.querySelector(`.nav-link[data-page="${p}"]`);
+            if (sidebarLink) {
+                sidebarLink.classList.add('nav-link-active', 'text-white');
+                sidebarLink.classList.remove('text-gray-400');
+            }
+
+            // Update bottom nav active state
+            document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const bottomItem = document.querySelector(`.bottom-nav-item[data-page="${p}"]`);
+            if (bottomItem) {
+                bottomItem.classList.add('active');
+            }
+
+            // Existing behavior
+            if (p === 3) initiateWithdrawal();
+            // You can expand this later for real page routing
+        }
+
+        // Mobile Menu
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        }
+        mobileBtn.addEventListener('click', toggleMobileMenu);
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 500) mobileMenu.classList.add('hidden');
+        });
+
+        window.onload = () => {
+            populateHistory();
+            switchTab(0);
+            fetchCryptoPrices();
+            setInterval(fetchCryptoPrices, 30000);
+            setTimeout(createChart, 800);
+        };
+    </script>
+</body>
+</html>
