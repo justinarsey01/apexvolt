@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090b">
+    <title>Deposit - ApexVolt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .logo-gradient { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: #09090b; border-top: 1px solid #27272a; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; height: 100%; color: #71717a; font-size: 11px; font-weight: 500; text-decoration: none; }
+        .bottom-nav-item.active { color: #3b82f6; }
+        .bottom-nav-item.active i { transform: scale(1.1); }
+        @media (max-width: 1023px) { body { padding-bottom: 80px; } }
+        @media (min-width: 1024px) { .bottom-nav { display: none !important; } }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <!-- Simple Navbar -->
+    <nav class="bg-black border-b border-gray-800 fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl">A</div>
+                <span class="font-bold text-2xl">ApexVolt</span>
+            </div>
+            <button onclick="location.href='dashboard.html'" class="text-sm text-gray-400 hover:text-white">← Dashboard</button>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 max-w-lg mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold">Deposit</h1>
+            <p class="text-gray-400 mt-1">Fund your account with crypto</p>
+        </div>
+
+        <!-- Deposit Card -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
+                    <i class="fas fa-arrow-down text-emerald-400 text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">Crypto Deposit</h2>
+                    <p class="text-sm text-gray-400">Select a coin and submit the transaction hash</p>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="text-sm text-gray-400 mb-2 block">1. Select Cryptocurrency</label>
+                <select id="deposit-coin" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white">
+                    <option value="">Select a coin...</option>
+                    <option value="bitcoin">Bitcoin (BTC)</option>
+                    <option value="ethereum">Ethereum (ETH)</option>
+                    <option value="tether">Tether (USDT)</option>
+                    <option value="solana">Solana (SOL)</option>
+                    <option value="binancecoin">BNB</option>
+                    <option value="polkadot">Polkadot (DOT)</option>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <label class="text-sm text-gray-400 mb-2 block">2. Enter Deposit Details</label>
+                <input id="deposit-amount" type="number" min="50" placeholder="Amount (USD, min $50)"
+                       class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 mb-3">
+                <input id="deposit-txid" type="text" placeholder="Transaction Hash (TXID)"
+                       class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 font-mono text-sm">
+            </div>
+
+            <button id="deposit-btn" onclick="submitDeposit()"
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-semibold flex items-center justify-center gap-3 disabled:opacity-60">
+                <svg id="deposit-spinner" class="hidden animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="deposit-btn-text">Submit Proof of Payment</span>
+            </button>
+        </div>
+
+        <!-- History -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6">
+            <h3 class="text-lg font-semibold mb-1">Deposit History</h3>
+            <p class="text-sm text-gray-400 mb-6">Track your previous deposits</p>
+            <div id="deposit-history"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="invest.html" class="bottom-nav-item"><i class="fas fa-chart-bar"></i><span>Invest</span></a>
+        <a href="deposit.html" class="bottom-nav-item active"><i class="fas fa-arrow-down"></i><span>Deposit</span></a>
+        <a href="withdraw.html" class="bottom-nav-item"><i class="fas fa-arrow-up"></i><span>Withdraw</span></a>
+        <a href="#" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+    </nav>
+
+    <script>
+        let depositHistory = JSON.parse(localStorage.getItem('apexvolt_deposits') || '[]');
+
+        function submitDeposit() {
+            const coin = document.getElementById('deposit-coin').value;
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const txid = document.getElementById('deposit-txid').value.trim();
+            const btn = document.getElementById('deposit-btn');
+            const spinner = document.getElementById('deposit-spinner');
+            const btnText = document.getElementById('deposit-btn-text');
+
+            if (!coin) return alert('Please select a cryptocurrency');
+            if (!amount || amount < 50) return alert('Minimum deposit is $50');
+            if (!txid || txid.length < 8) return alert('Please enter a valid Transaction Hash');
+
+            // Show loading
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            btnText.textContent = 'Submitting...';
+
+            setTimeout(function() {
+                const coinNames = {
+                    bitcoin: 'Bitcoin (BTC)',
+                    ethereum: 'Ethereum (ETH)',
+                    tether: 'Tether (USDT)',
+                    solana: 'Solana (SOL)',
+                    binancecoin: 'BNB',
+                    polkadot: 'Polkadot (DOT)'
+                };
+
+                depositHistory.unshift({
+                    coin: coinNames[coin] || coin,
+                    amount: amount,
+                    txid: txid,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    status: 'Pending'
+                });
+
+                localStorage.setItem('apexvolt_deposits', JSON.stringify(depositHistory));
+                renderDepositHistory();
+
+                // Reset form
+                document.getElementById('deposit-coin').value = '';
+                document.getElementById('deposit-amount').value = '';
+                document.getElementById('deposit-txid').value = '';
+
+                // Reset button
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Submit Proof of Payment';
+
+                alert('Deposit proof submitted successfully!\nIt will be reviewed shortly.');
+            }, 1300);
+        }
+
+        function renderDepositHistory() {
+            const container = document.getElementById('deposit-history');
+            if (depositHistory.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 opacity-30"></i><p>No deposits yet</p></div>';
+                return;
+            }
+            let html = '';
+            depositHistory.forEach(function(item) {
+                html += `
+                    <div class="py-4 border-b border-gray-800">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">${item.coin}</span>
+                            <span class="font-mono text-emerald-400">$${item.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="text-sm text-gray-400">${item.date} · <span class="text-yellow-400">${item.status}</span></div>
+                        <div class="text-xs text-gray-500 font-mono truncate mt-1">TXID: ${item.txid}</div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // Load history on page open
+        renderDepositHistory();
+    </script>
+</body>
+</html>
