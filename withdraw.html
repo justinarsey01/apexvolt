@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#09090b">
     <title>Withdraw - ApexVolt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -14,14 +13,12 @@
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: #09090b; border-top: 1px solid #27272a; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
         .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; height: 100%; color: #71717a; font-size: 11px; font-weight: 500; text-decoration: none; }
         .bottom-nav-item.active { color: #3b82f6; }
-        .bottom-nav-item.active i { transform: scale(1.1); }
         @media (max-width: 1023px) { body { padding-bottom: 80px; } }
         @media (min-width: 1024px) { .bottom-nav { display: none !important; } }
     </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
 
-    <!-- Simple Navbar -->
     <nav class="bg-black border-b border-gray-800 fixed w-full z-50">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -32,45 +29,48 @@
         </div>
     </nav>
 
-    <div class="pt-24 px-6 max-w-lg mx-auto">
+    <div class="pt-24 px-6 max-w-lg mx-auto pb-10">
         <div class="mb-8">
             <h1 class="text-3xl font-bold">Withdraw</h1>
-            <p class="text-gray-400 mt-1">Request a withdrawal to your wallet</p>
+            <p class="text-gray-400 mt-1">Withdraw from your Main Balance</p>
         </div>
 
-        <!-- Withdraw Card -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-2xl p-4 mb-6">
+            <div class="text-xs text-gray-400 mb-1">Available Main Balance</div>
+            <div id="main-balance" class="text-2xl font-mono font-bold">$0</div>
+        </div>
+
         <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-11 h-11 rounded-2xl bg-rose-500/15 flex items-center justify-center">
-                    <i class="fas fa-arrow-up text-rose-400 text-lg"></i>
+                    <i class="fas fa-arrow-up text-rose-400"></i>
                 </div>
                 <div>
                     <h2 class="text-xl font-semibold">Withdraw Funds</h2>
-                    <p class="text-sm text-gray-400">Minimum withdrawal: $50</p>
+                    <p class="text-sm text-gray-400">Minimum $50 • From Main Balance only</p>
                 </div>
             </div>
 
             <div class="mb-5">
-                <label class="text-sm text-gray-400 mb-2 block">1. Select Network</label>
+                <label class="text-sm text-gray-400 mb-2 block">Network</label>
                 <select id="withdraw-network" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white">
                     <option value="">Select network...</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
                     <option value="USDT">Tether (USDT)</option>
                     <option value="SOL">Solana (SOL)</option>
-                    <option value="BNB">BNB</option>
                 </select>
             </div>
 
             <div class="mb-5">
-                <label class="text-sm text-gray-400 mb-2 block">2. Amount (USD)</label>
+                <label class="text-sm text-gray-400 mb-2 block">Amount (USD)</label>
                 <input id="withdraw-amount" type="number" min="50" placeholder="50.00"
-                       class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 text-xl font-mono">
+                       class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 font-mono">
             </div>
 
             <div class="mb-6">
-                <label class="text-sm text-gray-400 mb-2 block">3. Wallet Address</label>
-                <input id="withdraw-address" type="text" placeholder="Enter your wallet address"
+                <label class="text-sm text-gray-400 mb-2 block">Wallet Address</label>
+                <input id="withdraw-address" type="text" placeholder="Enter wallet address"
                        class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 font-mono text-sm">
             </div>
 
@@ -84,25 +84,34 @@
             </button>
         </div>
 
-        <!-- History -->
         <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6">
-            <h3 class="text-lg font-semibold mb-1">Withdrawal History</h3>
-            <p class="text-sm text-gray-400 mb-6">Track your withdrawal requests</p>
+            <h3 class="text-lg font-semibold mb-4">Withdrawal History</h3>
             <div id="withdraw-history"></div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="invest.html" class="bottom-nav-item"><i class="fas fa-chart-bar"></i><span>Invest</span></a>
         <a href="deposit.html" class="bottom-nav-item"><i class="fas fa-arrow-down"></i><span>Deposit</span></a>
         <a href="withdraw.html" class="bottom-nav-item active"><i class="fas fa-arrow-up"></i><span>Withdraw</span></a>
-        <a href="#" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+        <a href="account.html" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
     </nav>
 
     <script>
+        function getBalances() {
+            const data = JSON.parse(localStorage.getItem('apexvolt_balances') || '{}');
+            return { main: Number(data.main) || 0, investment: Number(data.investment) || 0 };
+        }
+        function saveBalances(main, investment) {
+            localStorage.setItem('apexvolt_balances', JSON.stringify({ main: Number(main), investment: Number(investment) }));
+        }
+
         let withdrawHistory = JSON.parse(localStorage.getItem('apexvolt_withdrawals') || '[]');
+
+        function updateBalanceDisplay() {
+            document.getElementById('main-balance').textContent = '$' + getBalances().main.toLocaleString();
+        }
 
         function submitWithdrawal() {
             const network = document.getElementById('withdraw-network').value;
@@ -116,12 +125,19 @@
             if (!amount || amount < 50) return alert('Minimum withdrawal is $50');
             if (!address || address.length < 10) return alert('Please enter a valid wallet address');
 
-            // Show loading
+            const balances = getBalances();
+            if (amount > balances.main) {
+                return alert('Insufficient Main Balance');
+            }
+
             btn.disabled = true;
             spinner.classList.remove('hidden');
             btnText.textContent = 'Processing...';
 
-            setTimeout(function() {
+            setTimeout(() => {
+                balances.main -= amount;
+                saveBalances(balances.main, balances.investment);
+
                 withdrawHistory.unshift({
                     network: network,
                     amount: amount,
@@ -129,46 +145,40 @@
                     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                     status: 'Pending'
                 });
-
                 localStorage.setItem('apexvolt_withdrawals', JSON.stringify(withdrawHistory));
-                renderWithdrawHistory();
 
-                // Reset form
                 document.getElementById('withdraw-network').value = '';
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-address').value = '';
+                updateBalanceDisplay();
+                renderWithdrawHistory();
 
-                // Reset button
                 btn.disabled = false;
                 spinner.classList.add('hidden');
                 btnText.textContent = 'Confirm Withdrawal';
 
-                alert('Withdrawal request for $' + amount.toLocaleString() + ' submitted!\nIt will be processed shortly.');
-            }, 1300);
+                alert('Withdrawal request of $' + amount.toLocaleString() + ' submitted!');
+            }, 1200);
         }
 
         function renderWithdrawHistory() {
             const container = document.getElementById('withdraw-history');
             if (withdrawHistory.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 opacity-30"></i><p>No withdrawals yet</p></div>';
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No withdrawals yet</div>';
                 return;
             }
-            let html = '';
-            withdrawHistory.forEach(function(item) {
-                html += `
-                    <div class="py-4 border-b border-gray-800">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">${item.network}</span>
-                            <span class="font-mono text-rose-400">-$${item.amount.toLocaleString()}</span>
-                        </div>
-                        <div class="text-sm text-gray-400">${item.date} · <span class="text-yellow-400">${item.status}</span></div>
-                        <div class="text-xs text-gray-500 font-mono truncate mt-1">${item.address}</div>
-                    </div>`;
-            });
-            container.innerHTML = html;
+            container.innerHTML = withdrawHistory.map(item => `
+                <div class="py-3 border-b border-gray-800">
+                    <div class="flex justify-between">
+                        <span class="font-medium">${item.network}</span>
+                        <span class="font-mono text-rose-400">-$${item.amount.toLocaleString()}</span>
+                    </div>
+                    <div class="text-sm text-gray-400">${item.date} · ${item.status}</div>
+                </div>
+            `).join('');
         }
 
-        // Load history on page open
+        updateBalanceDisplay();
         renderWithdrawHistory();
     </script>
 </body>

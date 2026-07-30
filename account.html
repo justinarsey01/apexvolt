@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Account - ApexVolt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .logo-gradient { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: 72px; 
+            background: #09090b; border-top: 1px solid #27272a; 
+            display: flex; justify-content: space-around; align-items: center; 
+            z-index: 100; padding-bottom: env(safe-area-inset-bottom); 
+        }
+        .bottom-nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; gap: 4px; flex: 1; height: 100%; 
+            color: #71717a; font-size: 11px; font-weight: 500; text-decoration: none; 
+        }
+        .bottom-nav-item.active { color: #3b82f6; }
+        .bottom-nav-item.active i { transform: scale(1.1); }
+        @media (max-width: 1023px) { body { padding-bottom: 80px; } }
+        @media (min-width: 1024px) { .bottom-nav { display: none !important; } }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-black border-b border-gray-800 fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl">A</div>
+                <span class="font-bold text-2xl">ApexVolt</span>
+            </div>
+            <button onclick="location.href='dashboard.html'" class="text-sm text-gray-400 hover:text-white">← Dashboard</button>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 max-w-lg mx-auto pb-10">
+
+        <!-- Profile Header -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6 text-center">
+            <div class="w-20 h-20 logo-gradient rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4" id="user-avatar">
+                A
+            </div>
+            <h1 class="text-2xl font-bold" id="user-name">Alex</h1>
+            <p class="text-gray-400 text-sm mt-1" id="user-email">alex@email.com</p>
+            <div class="mt-4 inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 text-sm px-4 py-1.5 rounded-full">
+                <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                Verified Account
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-zinc-900 border border-gray-800 rounded-2xl p-4 text-center">
+                <div class="text-gray-400 text-sm mb-1">Total Balance</div>
+                <div class="text-xl font-bold font-mono" id="total-balance">$42,873</div>
+            </div>
+            <div class="bg-zinc-900 border border-gray-800 rounded-2xl p-4 text-center">
+                <div class="text-gray-400 text-sm mb-1">Active Investments</div>
+                <div class="text-xl font-bold" id="active-investments">2</div>
+            </div>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl overflow-hidden mb-6">
+            <div class="px-6 py-4 border-b border-gray-800">
+                <h2 class="font-semibold">Account Settings</h2>
+            </div>
+            
+            <button onclick="editProfile()" class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-user text-blue-400 w-5"></i>
+                    <span>Edit Profile</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </button>
+
+            <button onclick="changePassword()" class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-lock text-yellow-400 w-5"></i>
+                    <span>Change Password</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </button>
+
+            <button onclick="toggle2FA()" class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-shield-alt text-emerald-400 w-5"></i>
+                    <span>Two-Factor Authentication</span>
+                </div>
+                <span class="text-sm text-gray-400" id="2fa-status">Off</span>
+            </button>
+        </div>
+
+        <!-- Preferences -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl overflow-hidden mb-6">
+            <div class="px-6 py-4 border-b border-gray-800">
+                <h2 class="font-semibold">Preferences</h2>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell text-purple-400 w-5"></i>
+                    <span>Push Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="notif-toggle" class="sr-only peer" checked onchange="savePreference('notifications', this.checked)">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-envelope text-cyan-400 w-5"></i>
+                    <span>Email Alerts</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="email-toggle" class="sr-only peer" checked onchange="savePreference('emailAlerts', this.checked)">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Referral -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-users text-blue-400"></i>
+                <h2 class="font-semibold">Referral Program</h2>
+            </div>
+            <p class="text-sm text-gray-400 mb-4">Invite friends and earn 5% of their trading fees.</p>
+            
+            <div class="flex gap-2">
+                <input id="referral-code" type="text" value="ALEX2026" readonly
+                       class="flex-1 bg-zinc-950 border border-gray-700 rounded-2xl py-3 px-4 text-sm font-mono">
+                <button onclick="copyReferral()" class="px-5 bg-blue-600 hover:bg-blue-500 rounded-2xl font-medium text-sm">
+                    Copy
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">Your referral link: <span class="text-blue-400">apexvolt.app/ref/ALEX2026</span></p>
+        </div>
+
+        <!-- Support & Legal -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl overflow-hidden mb-6">
+            <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-headset text-green-400 w-5"></i>
+                    <span>Contact Support</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </button>
+            <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-file-alt text-gray-400 w-5"></i>
+                    <span>Terms of Service</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </button>
+            <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800 transition">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-shield-alt text-gray-400 w-5"></i>
+                    <span>Privacy Policy</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-500 text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Logout -->
+        <button onclick="logout()" class="w-full py-4 border border-red-500/50 hover:bg-red-500/10 text-red-400 rounded-2xl font-semibold flex items-center justify-center gap-2 mb-6">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+
+        <p class="text-center text-xs text-gray-600">ApexVolt v1.0.0 • PWA</p>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="invest.html" class="bottom-nav-item"><i class="fas fa-chart-bar"></i><span>Invest</span></a>
+        <a href="deposit.html" class="bottom-nav-item"><i class="fas fa-arrow-down"></i><span>Deposit</span></a>
+        <a href="withdraw.html" class="bottom-nav-item"><i class="fas fa-arrow-up"></i><span>Withdraw</span></a>
+        <a href="account.html" class="bottom-nav-item active"><i class="fas fa-user"></i><span>Account</span></a>
+    </nav>
+
+    <!-- Edit Profile Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div class="bg-zinc-900 rounded-3xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Edit Profile</h3>
+                <button onclick="closeProfileModal()" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">Full Name</label>
+                    <input id="edit-name" type="text" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-3 px-4 text-white">
+                </div>
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">Email</label>
+                    <input id="edit-email" type="email" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-3 px-4 text-white">
+                </div>
+            </div>
+            <button onclick="saveProfile()" class="w-full mt-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-2xl font-semibold">
+                Save Changes
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Load user data
+        let userData = JSON.parse(localStorage.getItem('apexvolt_user') || '{"name":"Alex","email":"alex@email.com","twoFA":false}');
+        let preferences = JSON.parse(localStorage.getItem('apexvolt_preferences') || '{"notifications":true,"emailAlerts":true}');
+
+        function loadUser() {
+            document.getElementById('user-name').textContent = userData.name;
+            document.getElementById('user-email').textContent = userData.email;
+            document.getElementById('user-avatar').textContent = userData.name.charAt(0).toUpperCase();
+            document.getElementById('2fa-status').textContent = userData.twoFA ? 'On' : 'Off';
+            document.getElementById('2fa-status').className = userData.twoFA ? 'text-sm text-emerald-400' : 'text-sm text-gray-400';
+
+            // Preferences
+            document.getElementById('notif-toggle').checked = preferences.notifications;
+            document.getElementById('email-toggle').checked = preferences.emailAlerts;
+
+            // Simple stats from other localStorage
+            const investments = JSON.parse(localStorage.getItem('apexvolt_investments') || '[]');
+            document.getElementById('active-investments').textContent = investments.length || 0;
+        }
+
+        function editProfile() {
+            document.getElementById('edit-name').value = userData.name;
+            document.getElementById('edit-email').value = userData.email;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('edit-name').value.trim();
+            const email = document.getElementById('edit-email').value.trim();
+            if (!name || !email) return alert('Please fill all fields');
+
+            userData.name = name;
+            userData.email = email;
+            localStorage.setItem('apexvolt_user', JSON.stringify(userData));
+            loadUser();
+            closeProfileModal();
+            alert('Profile updated successfully!');
+        }
+
+        function changePassword() {
+            const current = prompt('Enter current password:');
+            if (!current) return;
+            const newPass = prompt('Enter new password:');
+            if (!newPass || newPass.length < 6) return alert('Password must be at least 6 characters');
+            alert('Password changed successfully!');
+        }
+
+        function toggle2FA() {
+            userData.twoFA = !userData.twoFA;
+            localStorage.setItem('apexvolt_user', JSON.stringify(userData));
+            loadUser();
+            alert(userData.twoFA ? 'Two-Factor Authentication enabled!' : 'Two-Factor Authentication disabled.');
+        }
+
+        function savePreference(key, value) {
+            preferences[key] = value;
+            localStorage.setItem('apexvolt_preferences', JSON.stringify(preferences));
+        }
+
+        function copyReferral() {
+            const code = document.getElementById('referral-code');
+            code.select();
+            navigator.clipboard.writeText(code.value);
+            alert('Referral code copied!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Optional: clear sensitive data
+                // localStorage.clear();
+                location.href = 'index.html';
+            }
+        }
+
+        // Init
+        loadUser();
+    </script>
+</body>
+</html>

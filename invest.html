@@ -4,266 +4,242 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#09090b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ApexVolt">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <title>Invest - ApexVolt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', system-ui, sans-serif; padding-bottom: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; }
         .logo-gradient { background: linear-gradient(135deg, #3b82f6, #1e40af); }
-        .nav-link { transition: all 0.2s; }
-        .nav-link:hover { background-color: #1f2937; }
-        .nav-link-active { background-color: #1f2937; border-left: 4px solid #3b82f6; }
-        .ticker-container { overflow: hidden; white-space: nowrap; position: relative; }
-        .ticker-content { display: inline-flex; align-items: center; gap: 3rem; animation: ticker-scroll 35s linear infinite; }
-        .ticker-content:hover { animation-play-state: paused; }
-        @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: #09090b; border-top: 1px solid #27272a; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.4); }
-        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; height: 100%; color: #71717a; font-size: 11px; font-weight: 500; transition: all 0.2s ease; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-        .bottom-nav-item i { font-size: 20px; transition: all 0.2s ease; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: #09090b; border-top: 1px solid #27272a; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; height: 100%; color: #71717a; font-size: 11px; font-weight: 500; text-decoration: none; }
         .bottom-nav-item.active { color: #3b82f6; }
         .bottom-nav-item.active i { transform: scale(1.1); }
-        .bottom-nav-item:active { transform: scale(0.95); }
-        @media (min-width: 1024px) { .bottom-nav { display: none !important; } body { padding-bottom: 0 !important; } }
-        @media (max-width: 1023px) { body { padding-bottom: 80px; } .desktop-nav { display: none !important; } .mobile-menu-btn { display: flex !important; } }
+        @media (max-width: 1023px) { body { padding-bottom: 80px; } }
+        @media (min-width: 1024px) { .bottom-nav { display: none !important; } }
     </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
 
-    <!-- Ticker -->
-    <div class="bg-zinc-900 border-b border-gray-800 py-3 text-sm fixed w-full z-[60]">
-        <div class="ticker-container max-w-7xl mx-auto px-6">
-            <div class="ticker-content" id="ticker-content"></div>
-        </div>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="bg-black border-b border-gray-800 fixed w-full z-50 mt-11">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-inner">A</div>
-                    <span class="font-bold text-3xl tracking-tight">ApexVolt</span>
-                </div>
-                <div class="desktop-nav flex items-center gap-6">
-                    <div class="flex items-center gap-2 bg-zinc-900 rounded-2xl px-4 py-2 text-sm">
-                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                        <span id="last-updated">Live</span>
-                    </div>
-                    <button onclick="logout()" class="px-6 py-2 text-sm border border-red-500/50 hover:bg-red-500/10 rounded-2xl flex items-center gap-2">
-                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
-                    </button>
-                </div>
-                <button id="mobile-menu-btn" class="mobile-menu-btn hidden items-center justify-center w-10 h-10 text-2xl">
-                    <i class="fas fa-bars"></i>
-                </button>
+    <nav class="bg-black border-b border-gray-800 fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl">A</div>
+                <span class="font-bold text-2xl">ApexVolt</span>
             </div>
-        </div>
-        <div id="mobile-menu" class="hidden bg-zinc-900 border-t border-gray-800">
-            <div class="px-6 py-6 space-y-4">
-                <button onclick="logout()" class="w-full py-4 border border-red-500/50 hover:bg-red-500/10 rounded-2xl flex items-center justify-center gap-2">
-                    <i class="fas fa-sign-out-alt"></i><span>Logout</span>
-                </button>
-            </div>
+            <button onclick="location.href='dashboard.html'" class="text-sm text-gray-400 hover:text-white">← Dashboard</button>
         </div>
     </nav>
 
-    <div class="flex pt-28">
-        <!-- Sidebar -->
-        <div class="w-64 bg-zinc-950 border-r border-gray-800 h-screen fixed hidden lg:block">
-            <div class="px-6 py-8 space-y-1">
-                <a href="dashboard.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white"><i class="fas fa-chart-line w-5"></i><span class="font-medium">Dashboard</span></a>
-                <a href="invest.html" class="nav-link nav-link-active flex items-center gap-3 px-4 py-3 rounded-2xl text-white"><i class="fas fa-chart-bar w-5"></i><span class="font-medium">Investments</span></a>
-                <a href="deposit.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white"><i class="fas fa-arrow-down w-5"></i><span class="font-medium">Deposits</span></a>
-                <a href="withdraw.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white"><i class="fas fa-arrow-up w-5"></i><span class="font-medium">Withdrawals</span></a>
+    <div class="pt-24 px-6 max-w-lg mx-auto pb-10">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold">Invest</h1>
+            <p class="text-gray-400 mt-1">Grow your crypto with yield</p>
+        </div>
+
+        <!-- Balances Summary -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-zinc-900 border border-gray-800 rounded-2xl p-4">
+                <div class="text-xs text-gray-400 mb-1">Main Balance</div>
+                <div id="main-balance" class="text-lg font-mono font-bold">$0</div>
+            </div>
+            <div class="bg-zinc-900 border border-gray-800 rounded-2xl p-4">
+                <div class="text-xs text-gray-400 mb-1">Investment Balance</div>
+                <div id="investment-balance" class="text-lg font-mono font-bold text-emerald-400">$0</div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 lg:ml-64">
-            <div class="max-w-lg mx-auto px-6 py-8">
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold">Invest</h1>
-                    <p class="text-gray-400 mt-1">Choose a coin and start earning yield</p>
+        <!-- Invest Card -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-11 h-11 rounded-2xl bg-blue-500/15 flex items-center justify-center">
+                    <i class="fas fa-chart-line text-blue-400"></i>
                 </div>
-
-                <!-- Invest Card -->
-                <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6 mb-6">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-11 h-11 rounded-2xl bg-blue-500/15 flex items-center justify-center">
-                            <i class="fas fa-chart-line text-blue-400 text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-semibold">Invest in Crypto</h2>
-                            <p class="text-sm text-gray-400">Select a cryptocurrency and amount</p>
-                        </div>
-                    </div>
-
-                    <div class="mb-5">
-                        <label class="text-sm text-gray-400 mb-2 block">1. Select Cryptocurrency</label>
-                        <select id="invest-coin" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white appearance-none focus:outline-none focus:border-blue-500">
-                            <option value="">Select a coin...</option>
-                            <option value="bitcoin">Bitcoin (BTC) — 18.4% APY</option>
-                            <option value="ethereum">Ethereum (ETH) — 12.7% APY</option>
-                            <option value="solana">Solana (SOL) — 9.8% APY</option>
-                            <option value="cardano">Cardano (ADA) — 7.2% APY</option>
-                            <option value="binancecoin">BNB — 8.5% APY</option>
-                            <option value="polkadot">Polkadot (DOT) — 11.3% APY</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="text-sm text-gray-400 mb-2 block">2. Enter Investment Amount</label>
-                        <input id="invest-amount" type="number" min="50" step="10" placeholder="Amount (in USD value, min $50)"
-                               class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
-                    </div>
-
-                    <button id="invest-btn" onclick="submitInvestment()"
-                            class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-semibold transition flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <svg id="invest-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span id="invest-btn-text">Confirm Investment</span>
-                    </button>
-                </div>
-
-                <!-- History -->
-                <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6">
-                    <h3 class="text-lg font-semibold mb-1">Investment History</h3>
-                    <p class="text-sm text-gray-400 mb-6">Track your active and past investments.</p>
-                    <div id="invest-history"></div>
+                <div>
+                    <h2 class="text-xl font-semibold">Invest in Crypto</h2>
+                    <p class="text-sm text-gray-400">Money will be taken from Main Balance</p>
                 </div>
             </div>
+
+            <div class="mb-5">
+                <label class="text-sm text-gray-400 mb-2 block">Select Cryptocurrency</label>
+                <select id="invest-coin" class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white">
+                    <option value="">Select a coin...</option>
+                    <option value="bitcoin">Bitcoin (BTC) — 18.4% APY</option>
+                    <option value="ethereum">Ethereum (ETH) — 12.7% APY</option>
+                    <option value="solana">Solana (SOL) — 9.8% APY</option>
+                    <option value="cardano">Cardano (ADA) — 7.2% APY</option>
+                    <option value="binancecoin">BNB — 8.5% APY</option>
+                    <option value="polkadot">Polkadot (DOT) — 11.3% APY</option>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label class="text-sm text-gray-400 mb-2 block">Amount (USD)</label>
+                <input id="invest-amount" type="number" min="50" placeholder="Min $50"
+                       class="w-full bg-zinc-950 border border-gray-700 rounded-2xl py-4 px-5 text-white placeholder-gray-500">
+            </div>
+
+            <button id="invest-btn" onclick="submitInvestment()"
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-semibold flex items-center justify-center gap-3 disabled:opacity-60">
+                <svg id="invest-spinner" class="hidden animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="invest-btn-text">Confirm Investment</span>
+            </button>
+        </div>
+
+        <!-- Investment History with Redeem buttons -->
+        <div class="bg-zinc-900 border border-gray-800 rounded-3xl p-6">
+            <h3 class="text-lg font-semibold mb-1">Active Investments</h3>
+            <p class="text-sm text-gray-400 mb-6">Click Redeem to move money back to Main Balance</p>
+            <div id="invest-history"></div>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
         <a href="invest.html" class="bottom-nav-item active"><i class="fas fa-chart-bar"></i><span>Invest</span></a>
         <a href="deposit.html" class="bottom-nav-item"><i class="fas fa-arrow-down"></i><span>Deposit</span></a>
         <a href="withdraw.html" class="bottom-nav-item"><i class="fas fa-arrow-up"></i><span>Withdraw</span></a>
-        <a href="#" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+        <a href="account.html" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
     </nav>
 
     <script>
+        // ========== BALANCE SYSTEM ==========
+        function getBalances() {
+            const data = JSON.parse(localStorage.getItem('apexvolt_balances') || '{}');
+            return {
+                main: Number(data.main) || 0,
+                investment: Number(data.investment) || 0
+            };
+        }
+        function saveBalances(main, investment) {
+            localStorage.setItem('apexvolt_balances', JSON.stringify({
+                main: Number(main),
+                investment: Number(investment)
+            }));
+        }
+
         let investHistory = JSON.parse(localStorage.getItem('apexvolt_investments') || '[]');
 
+        function updateBalanceDisplay() {
+            const b = getBalances();
+            document.getElementById('main-balance').textContent = '$' + b.main.toLocaleString();
+            document.getElementById('investment-balance').textContent = '$' + b.investment.toLocaleString();
+        }
+
         function submitInvestment() {
-            const coinSelect = document.getElementById('invest-coin');
-            const amountInput = document.getElementById('invest-amount');
+            const coin = document.getElementById('invest-coin').value;
+            const amount = parseFloat(document.getElementById('invest-amount').value);
             const btn = document.getElementById('invest-btn');
             const spinner = document.getElementById('invest-spinner');
             const btnText = document.getElementById('invest-btn-text');
 
-            const coin = coinSelect.value;
-            const amount = parseFloat(amountInput.value);
-
             if (!coin) return alert('Please select a cryptocurrency');
             if (!amount || amount < 50) return alert('Minimum investment is $50');
+
+            const balances = getBalances();
+            if (amount > balances.main) {
+                return alert('Insufficient Main Balance. Please deposit first.');
+            }
 
             btn.disabled = true;
             spinner.classList.remove('hidden');
             btnText.textContent = 'Processing...';
 
             setTimeout(() => {
-                try {
-                    const coinNames = {
-                        bitcoin: 'Bitcoin (BTC)', ethereum: 'Ethereum (ETH)', solana: 'Solana (SOL)',
-                        cardano: 'Cardano (ADA)', binancecoin: 'BNB', polkadot: 'Polkadot (DOT)'
-                    };
-                    const apyMap = {
-                        bitcoin: '18.4%', ethereum: '12.7%', solana: '9.8%',
-                        cardano: '7.2%', binancecoin: '8.5%', polkadot: '11.3%'
-                    };
+                const coinNames = {
+                    bitcoin: 'Bitcoin (BTC)', ethereum: 'Ethereum (ETH)', solana: 'Solana (SOL)',
+                    cardano: 'Cardano (ADA)', binancecoin: 'BNB', polkadot: 'Polkadot (DOT)'
+                };
+                const apyMap = {
+                    bitcoin: '18.4%', ethereum: '12.7%', solana: '9.8%',
+                    cardano: '7.2%', binancecoin: '8.5%', polkadot: '11.3%'
+                };
 
-                    investHistory.unshift({
-                        coin: coinNames[coin],
-                        amount: amount,
-                        apy: apyMap[coin],
-                        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                        status: 'Active'
-                    });
+                // Move money: Main → Investment
+                balances.main -= amount;
+                balances.investment += amount;
+                saveBalances(balances.main, balances.investment);
 
-                    localStorage.setItem('apexvolt_investments', JSON.stringify(investHistory));
-                    renderInvestHistory();
+                // Add to history
+                investHistory.unshift({
+                    id: Date.now(),
+                    coin: coinNames[coin],
+                    amount: amount,
+                    apy: apyMap[coin],
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    status: 'Active'
+                });
+                localStorage.setItem('apexvolt_investments', JSON.stringify(investHistory));
 
-                    coinSelect.value = '';
-                    amountInput.value = '';
-                    alert(`Successfully invested $${amount.toLocaleString()} in ${coinNames[coin]}!`);
-                } catch (e) {
-                    console.error(e);
-                    alert('Something went wrong');
-                } finally {
-                    btn.disabled = false;
-                    spinner.classList.add('hidden');
-                    btnText.textContent = 'Confirm Investment';
-                }
+                document.getElementById('invest-coin').value = '';
+                document.getElementById('invest-amount').value = '';
+                updateBalanceDisplay();
+                renderInvestHistory();
+
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Confirm Investment';
+
+                alert(`Successfully invested $${amount.toLocaleString()} in ${coinNames[coin]}!`);
             }, 1200);
+        }
+
+        function redeemInvestment(id) {
+            const item = investHistory.find(i => i.id === id);
+            if (!item) return;
+
+            if (!confirm(`Redeem $${item.amount.toLocaleString()} from ${item.coin} back to Main Balance?`)) return;
+
+            const balances = getBalances();
+
+            // Move money: Investment → Main
+            balances.investment -= item.amount;
+            balances.main += item.amount;
+            saveBalances(balances.main, balances.investment);
+
+            // Remove from active investments
+            investHistory = investHistory.filter(i => i.id !== id);
+            localStorage.setItem('apexvolt_investments', JSON.stringify(investHistory));
+
+            updateBalanceDisplay();
+            renderInvestHistory();
+            alert(`Successfully redeemed $${item.amount.toLocaleString()} to Main Balance!`);
         }
 
         function renderInvestHistory() {
             const container = document.getElementById('invest-history');
             if (investHistory.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 opacity-30"></i><p>No investments yet.<br>Make your first investment above.</p></div>`;
+                container.innerHTML = `<div class="text-center py-10 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-3 opacity-30"></i>
+                    <p>No active investments</p>
+                </div>`;
                 return;
             }
+
             container.innerHTML = investHistory.map(item => `
-                <div class="flex justify-between items-center py-4 border-b border-gray-800 last:border-0">
-                    <div>
-                        <div class="font-medium">${item.coin}</div>
-                        <div class="text-sm text-gray-400">${item.date} · ${item.apy} APY · <span class="text-emerald-400">${item.status}</span></div>
+                <div class="flex items-center justify-between py-4 border-b border-gray-800 last:border-0 gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium truncate">${item.coin}</div>
+                        <div class="text-sm text-gray-400">${item.date} · ${item.apy} APY</div>
                     </div>
-                    <div class="font-mono font-semibold text-emerald-400">$${item.amount.toLocaleString()}</div>
+                    <div class="text-right">
+                        <div class="font-mono font-semibold text-emerald-400">$${item.amount.toLocaleString()}</div>
+                        <button onclick="redeemInvestment(${item.id})" 
+                                class="mt-1 text-xs bg-orange-600 hover:bg-orange-500 px-3 py-1 rounded-full transition">
+                            Redeem
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function logout() { if(confirm("Logout?")) location.href = 'dashboard.html'; }
-
-        // Ticker
-        async function fetchCryptoPrices() {
-            try {
-                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,binancecoin,polkadot&vs_currencies=usd&include_24hr_change=true');
-                const data = await res.json();
-                const coins = [
-                    {id:'bitcoin',symbol:'BTC'},{id:'ethereum',symbol:'ETH'},{id:'solana',symbol:'SOL'},
-                    {id:'cardano',symbol:'ADA'},{id:'binancecoin',symbol:'BNB'},{id:'polkadot',symbol:'DOT'}
-                ];
-                let html = '';
-                for(let i=0;i<2;i++){
-                    coins.forEach(c=>{
-                        const p = data[c.id] || {usd:0,usd_24h_change:0};
-                        const cls = (p.usd_24h_change||0)>=0 ? 'text-emerald-400':'text-red-400';
-                        html += `<span class="flex items-center gap-3"><span class="font-medium">${c.symbol}</span><span class="font-mono">$${Number(p.usd).toLocaleString()}</span><span class="text-xs ${cls}">${(p.usd_24h_change||0).toFixed(2)}%</span></span>`;
-                    });
-                }
-                document.getElementById('ticker-content').innerHTML = html;
-            } catch(e){}
-            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('last-updated').innerHTML = `Live <span class="text-xs text-gray-500">• ${time}</span>`;
-        }
-
-        document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
-        }
-
-        window.onload = () => {
-            fetchCryptoPrices();
-            setInterval(fetchCryptoPrices, 30000);
-            renderInvestHistory();
-        };
+        // Init
+        updateBalanceDisplay();
+        renderInvestHistory();
     </script>
 </body>
 </html>

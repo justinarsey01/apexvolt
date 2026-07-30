@@ -203,7 +203,7 @@
                         <i class="fas fa-exchange-alt w-5"></i>
                         <span class="font-medium">Transfer</span>
                     </a>
-                    <a href="#" onclick="switchPage(5)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="5">
+                    <a href="" onclick="switchPage(5)" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white" data-page="5">
                         <i class="fas fa-users w-5"></i>
                         <span class="font-medium">Referrals</span>
                     </a>
@@ -327,14 +327,15 @@
     <i class="fas fa-arrow-down"></i>
     <span>Deposit</span>
 </a>
-          <a href="withdraw.html" class="bottom-nav-item" data-page="2">
-    <i class="fas fa-arrow-down"></i>
+          <a href="withdraw.html" class="bottom-nav-item" data-page="3">
+    <i class="fas fa-arrow-up"></i>
     <span>Withdraw</span>
 </a>
-        <a href="#" class="bottom-nav-item" data-page="6" onclick="switchPage(6); return false;">
-            <i class="fas fa-user"></i>
-            <span>Account</span>
-        </a>
+          <a href="account.html" class="bottom-nav-item" data-page="4">
+    <i  class="fas fa-user"></i>
+    <span>Account</span>
+</a>
+        
     </nav>
 
    
@@ -560,6 +561,292 @@
             fetchCryptoPrices();
             setInterval(fetchCryptoPrices, 30000);
             setTimeout(createChart, 800);
+        };
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ApexVolt">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.png">
+    <title>Dashboard - ApexVolt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .logo-gradient { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .nav-link { transition: all 0.2s; }
+        .nav-link:hover { background-color: #1f2937; }
+        .nav-link-active { background-color: #1f2937; border-left: 4px solid #3b82f6; }
+        .ticker-container { overflow: hidden; white-space: nowrap; }
+        .ticker-content { display: inline-flex; align-items: center; gap: 3rem; animation: ticker-scroll 35s linear infinite; }
+        .ticker-content:hover { animation-play-state: paused; }
+        @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: #09090b; border-top: 1px solid #27272a; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.4); }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: 1; height: 100%; color: #71717a; font-size: 11px; font-weight: 500; text-decoration: none; }
+        .bottom-nav-item i { font-size: 20px; }
+        .bottom-nav-item.active { color: #3b82f6; }
+        .bottom-nav-item.active i { transform: scale(1.1); }
+        @media (min-width: 1024px) { .bottom-nav { display: none !important; } body { padding-bottom: 0 !important; } }
+        @media (max-width: 1023px) { body { padding-bottom: 80px; } .desktop-nav { display: none !important; } }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <!-- Ticker -->
+    <div class="bg-zinc-900 border-b border-gray-800 py-3 text-sm fixed w-full z-[60]">
+        <div class="ticker-container max-w-7xl mx-auto px-6">
+            <div class="ticker-content" id="ticker-content"></div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-black border-b border-gray-800 fixed w-full z-50 mt-11">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 logo-gradient rounded-2xl flex items-center justify-center text-white font-bold text-2xl">A</div>
+                    <span class="font-bold text-3xl tracking-tight">ApexVolt</span>
+                </div>
+                <div class="desktop-nav flex items-center gap-6">
+                    <div class="flex items-center gap-2 bg-zinc-900 rounded-2xl px-4 py-2 text-sm">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <span id="last-updated">Live</span>
+                    </div>
+                    <button onclick="logout()" class="px-6 py-2 text-sm border border-red-500/50 hover:bg-red-500/10 rounded-2xl flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-28">
+        <!-- Sidebar -->
+        <div class="w-64 bg-zinc-950 border-r border-gray-800 h-screen fixed hidden lg:block">
+            <div class="px-6 py-8 space-y-1">
+                <a href="dashboard.html" class="nav-link nav-link-active flex items-center gap-3 px-4 py-3 rounded-2xl text-white">
+                    <i class="fas fa-chart-line w-5"></i><span class="font-medium">Dashboard</span>
+                </a>
+                <a href="invest.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-chart-bar w-5"></i><span class="font-medium">Investments</span>
+                </a>
+                <a href="deposit.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-arrow-down w-5"></i><span class="font-medium">Deposits</span>
+                </a>
+                <a href="withdraw.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-arrow-up w-5"></i><span class="font-medium">Withdrawals</span>
+                </a>
+                <a href="account.html" class="nav-link flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-user w-5"></i><span class="font-medium">Account</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 lg:ml-64">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+
+                <!-- Welcome -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10">
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold tracking-tight">Welcome back, Alex</h1>
+                        <p class="text-gray-400 mt-1">Portfolio Overview</p>
+                    </div>
+                    <a href="withdraw.html" class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-2xl font-semibold flex items-center gap-2">
+                        <i class="fas fa-arrow-up"></i> Withdraw
+                    </a>
+                </div>
+
+                <!-- ===== BALANCES SECTION ===== -->
+                <div class="bg-zinc-900 rounded-3xl p-6 lg:p-8 mb-8">
+                    <!-- Total Portfolio -->
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-2xl lg:text-3xl font-semibold">Total Portfolio</h2>
+                            <p class="text-gray-400 text-sm mt-1">Main Balance + Investments</p>
+                        </div>
+                        <div class="text-right">
+                            <div id="total-portfolio" class="text-3xl lg:text-4xl font-mono font-bold">$0</div>
+                            <div class="text-emerald-400 text-sm flex items-center gap-1 justify-end mt-1">
+                                <i class="fas fa-arrow-trend-up"></i> <span>Live</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main + Investment Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                        <!-- Main Balance -->
+                        <div class="bg-zinc-950 border border-gray-700 rounded-2xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                                        <i class="fas fa-wallet text-blue-400"></i>
+                                    </div>
+                                    <span class="text-gray-400 text-sm">Main Balance</span>
+                                </div>
+                                <span class="text-xs bg-blue-500/20 text-blue-400 px-2.5 py-1 rounded-full">Available</span>
+                            </div>
+                            <div id="main-balance" class="text-2xl lg:text-3xl font-mono font-bold">$0</div>
+                            <p class="text-xs text-gray-500 mt-2">Can invest or withdraw</p>
+                        </div>
+
+                        <!-- Investment Balance -->
+                        <div class="bg-zinc-950 border border-gray-700 rounded-2xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                                        <i class="fas fa-chart-line text-emerald-400"></i>
+                                    </div>
+                                    <span class="text-gray-400 text-sm">Investment Balance</span>
+                                </div>
+                                <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full">Earning</span>
+                            </div>
+                            <div id="investment-balance" class="text-2xl lg:text-3xl font-mono font-bold text-emerald-400">$0</div>
+                            <p class="text-xs text-gray-500 mt-2">Currently invested</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <a href="deposit.html" class="bg-zinc-950 hover:bg-zinc-800 border border-gray-700 rounded-2xl p-4 text-center transition">
+                            <i class="fas fa-arrow-down text-emerald-400 text-xl mb-2"></i>
+                            <div class="text-sm font-medium">Deposit</div>
+                        </a>
+                        <a href="invest.html" class="bg-zinc-950 hover:bg-zinc-800 border border-gray-700 rounded-2xl p-4 text-center transition">
+                            <i class="fas fa-chart-bar text-blue-400 text-xl mb-2"></i>
+                            <div class="text-sm font-medium">Invest</div>
+                        </a>
+                        <a href="invest.html" class="bg-zinc-950 hover:bg-zinc-800 border border-gray-700 rounded-2xl p-4 text-center transition">
+                            <i class="fas fa-undo text-orange-400 text-xl mb-2"></i>
+                            <div class="text-sm font-medium">Redeem</div>
+                        </a>
+                        <a href="withdraw.html" class="bg-zinc-950 hover:bg-zinc-800 border border-gray-700 rounded-2xl p-4 text-center transition">
+                            <i class="fas fa-arrow-up text-rose-400 text-xl mb-2"></i>
+                            <div class="text-sm font-medium">Withdraw</div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Active Investments Preview -->
+                <div class="bg-zinc-900 rounded-3xl p-6 lg:p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold">Active Investments</h2>
+                        <a href="invest.html" class="text-blue-400 text-sm hover:underline">View all →</a>
+                    </div>
+                    <div id="active-investments-list">
+                        <div class="text-center py-10 text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-3 opacity-30"></i>
+                            <p>No active investments yet</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="bottom-nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="invest.html" class="bottom-nav-item"><i class="fas fa-chart-bar"></i><span>Invest</span></a>
+        <a href="deposit.html" class="bottom-nav-item"><i class="fas fa-arrow-down"></i><span>Deposit</span></a>
+        <a href="withdraw.html" class="bottom-nav-item"><i class="fas fa-arrow-up"></i><span>Withdraw</span></a>
+        <a href="account.html" class="bottom-nav-item"><i class="fas fa-user"></i><span>Account</span></a>
+    </nav>
+
+    <script>
+        // ========== BALANCE SYSTEM ==========
+        function getBalances() {
+            const data = JSON.parse(localStorage.getItem('apexvolt_balances') || '{}');
+            return {
+                main: Number(data.main) || 0,
+                investment: Number(data.investment) || 0
+            };
+        }
+
+        function updateDashboardBalances() {
+            const b = getBalances();
+            const total = b.main + b.investment;
+
+            document.getElementById('main-balance').textContent = '$' + b.main.toLocaleString();
+            document.getElementById('investment-balance').textContent = '$' + b.investment.toLocaleString();
+            document.getElementById('total-portfolio').textContent = '$' + total.toLocaleString();
+        }
+
+        function renderActiveInvestments() {
+            const investments = JSON.parse(localStorage.getItem('apexvolt_investments') || '[]');
+            const container = document.getElementById('active-investments-list');
+
+            if (investments.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>No active investments yet</p>
+                        <a href="invest.html" class="inline-block mt-4 text-blue-400 text-sm hover:underline">Start investing →</a>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = investments.slice(0, 5).map(item => `
+                <div class="flex items-center justify-between py-4 border-b border-gray-800 last:border-0">
+                    <div>
+                        <div class="font-medium">${item.coin}</div>
+                        <div class="text-sm text-gray-400">${item.date} · ${item.apy} APY</div>
+                    </div>
+                    <div class="font-mono font-semibold text-emerald-400">$${Number(item.amount).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        // Ticker
+        async function fetchCryptoPrices() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,binancecoin,polkadot,tether&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+                const coins = [
+                    {id:'bitcoin', symbol:'BTC'}, {id:'ethereum', symbol:'ETH'},
+                    {id:'solana', symbol:'SOL'}, {id:'cardano', symbol:'ADA'},
+                    {id:'binancecoin', symbol:'BNB'}, {id:'polkadot', symbol:'DOT'},
+                    {id:'tether', symbol:'USDT'}
+                ];
+                let html = '';
+                for (let i = 0; i < 2; i++) {
+                    coins.forEach(c => {
+                        const p = data[c.id] || {usd: 0, usd_24h_change: 0};
+                        const cls = (p.usd_24h_change || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+                        html += `<span class="flex items-center gap-3">
+                            <span class="font-medium">${c.symbol}</span>
+                            <span class="font-mono">$${Number(p.usd).toLocaleString()}</span>
+                            <span class="text-xs ${cls}">${(p.usd_24h_change || 0).toFixed(2)}%</span>
+                        </span>`;
+                    });
+                }
+                document.getElementById('ticker-content').innerHTML = html;
+            } catch (e) {}
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('last-updated').innerHTML = `Live <span class="text-xs text-gray-500">• ${time}</span>`;
+        }
+
+        function logout() {
+            if (confirm('Logout?')) location.reload();
+        }
+
+        // Init
+        window.onload = () => {
+            updateDashboardBalances();
+            renderActiveInvestments();
+            fetchCryptoPrices();
+            setInterval(fetchCryptoPrices, 30000);
         };
     </script>
 </body>
